@@ -60,6 +60,7 @@ router.get('/api/entidades', async (req, res, next) => {
   try {
     const { single, ...raw } = req.query;
     const options = { params: raw };
+    const context = { rota: req.path, metodo: req.method };
 
     if (options.params.limit !== undefined) {
       options.params.limit = Number(options.params.limit);
@@ -68,7 +69,7 @@ router.get('/api/entidades', async (req, res, next) => {
       options.params.offset = Number(options.params.offset);
     }
 
-    const data = await entidadesService.listarEntidades(options);
+    const data = await entidadesService.listarEntidades(options, context);
 
     if (single === 'true') {
       const primeiro = Array.isArray(data) ? data[0] || null : data || null;
@@ -100,11 +101,12 @@ router.get('/api/entidades', async (req, res, next) => {
 router.get('/api/entidades/:codigo', async (req, res, next) => {
   try {
     const { codigo } = req.params;
+    const context = { rota: req.path, metodo: req.method };
     if (!codigo) {
       return res.status(400).json({ success: false, error: 'Codigo obrigatorio.' });
     }
 
-    const data = await entidadesService.obterEntidadePorCodigo(codigo);
+    const data = await entidadesService.obterEntidadePorCodigo(codigo, context);
     return res.json({ success: true, data });
   } catch (error) {
     next(error);
@@ -145,6 +147,7 @@ router.get('/api/entidades/:codigo', async (req, res, next) => {
 router.post('/api/entidades', async (req, res, next) => {
   try {
     const payload = req.body?.entidade ? req.body.entidade : req.body;
+    const context = { rota: req.path, metodo: req.method };
 
     if (!payload || typeof payload !== 'object') {
       return res.status(400).json({ success: false, error: 'Payload invalido.' });
@@ -189,7 +192,10 @@ router.post('/api/entidades', async (req, res, next) => {
       }
     }
 
-    const data = await entidadesService.criarEntidade(req.body?.entidade ? req.body : { entidade: payload });
+    const data = await entidadesService.criarEntidade(
+      req.body?.entidade ? req.body : { entidade: payload },
+      context,
+    );
     return res.status(201).json({ success: true, data });
   } catch (error) {
     next(error);
@@ -228,6 +234,7 @@ router.post('/api/entidades', async (req, res, next) => {
 router.put('/api/entidades', async (req, res, next) => {
   try {
     const payload = req.body?.entidade ? req.body.entidade : req.body;
+    const context = { rota: req.path, metodo: req.method };
 
     if (!payload || typeof payload !== 'object') {
       return res.status(400).json({ success: false, error: 'Payload invalido.' });
@@ -276,7 +283,10 @@ router.put('/api/entidades', async (req, res, next) => {
       }
     }
 
-    const data = await entidadesService.atualizarEntidade(req.body?.entidade ? req.body : { entidade: payload });
+    const data = await entidadesService.atualizarEntidade(
+      req.body?.entidade ? req.body : { entidade: payload },
+      context,
+    );
     return res.json({ success: true, data });
   } catch (error) {
     next(error);
@@ -308,11 +318,12 @@ router.put('/api/entidades', async (req, res, next) => {
 router.delete('/api/entidades/:codigo', async (req, res, next) => {
   try {
     const { codigo } = req.params;
+    const context = { rota: req.path, metodo: req.method };
     if (!codigo) {
       return res.status(400).json({ success: false, error: 'Codigo obrigatorio.' });
     }
 
-    const data = await entidadesService.apagarEntidade(codigo);
+    const data = await entidadesService.apagarEntidade(codigo, context);
     return res.json({ success: true, data });
   } catch (error) {
     next(error);

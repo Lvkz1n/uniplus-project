@@ -34,6 +34,7 @@ router.get('/api/ordens-servico', async (req, res, next) => {
   try {
     const { single, ...raw } = req.query;
     const options = { params: raw };
+    const context = { rota: req.path, metodo: req.method };
 
     if (options.params.limit !== undefined) {
       options.params.limit = Number(options.params.limit);
@@ -42,7 +43,7 @@ router.get('/api/ordens-servico', async (req, res, next) => {
       options.params.offset = Number(options.params.offset);
     }
 
-    const data = await ordensServicoService.listarOrdensServico(options);
+    const data = await ordensServicoService.listarOrdensServico(options, context);
 
     if (single === 'true') {
       const primeiro = Array.isArray(data) ? data[0] || null : data || null;
@@ -74,12 +75,13 @@ router.get('/api/ordens-servico', async (req, res, next) => {
 router.get('/api/ordens-servico/:codigo', async (req, res, next) => {
   try {
     const { codigo } = req.params;
+    const context = { rota: req.path, metodo: req.method };
     if (!codigo) {
       return res.status(400).json({ success: false, error: 'Codigo obrigatorio.' });
     }
 
     try {
-      const data = await ordensServicoService.obterOrdemServicoPorCodigo(codigo);
+      const data = await ordensServicoService.obterOrdemServicoPorCodigo(codigo, context);
       return res.json({ success: true, data });
     } catch (error) {
       if (error.status !== 422) {
@@ -88,7 +90,7 @@ router.get('/api/ordens-servico/:codigo', async (req, res, next) => {
 
       const data = await ordensServicoService.listarOrdensServico({
         params: { 'codigo.eq': codigo },
-      });
+      }, context);
 
       if (Array.isArray(data) && data.length === 0) {
         return res.status(404).json({ success: false, error: 'Ordem de servico nao encontrada.' });

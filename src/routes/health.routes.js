@@ -1,15 +1,34 @@
 const express = require('express');
 const supabase = require('../config/supabase');
+const auditService = require('../services/audit.service');
 
 const router = express.Router();
 
 router.get('/health', (req, res) => {
-  res.json({
+  const response = {
     success: true,
     status: 'ok',
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
-  });
+  };
+
+  auditService
+    .registrarAuditoria(
+      {
+        table: 'health_log',
+        recurso: 'health',
+        rota: req.path,
+        metodo: req.method,
+        codigo: null,
+        payload: { tipo: 'api' },
+        operacao: 'CONSULTAR',
+        status: 'SUCESSO',
+      },
+      { ignoreFailure: true },
+    )
+    .catch(() => {});
+
+  res.json(response);
 });
 
 /**
@@ -27,6 +46,19 @@ router.get('/health/supabase', async (req, res, next) => {
     const { data, error } = await supabase.from('pedidos_log').select('id').limit(1);
 
     if (error) {
+      await auditService.registrarAuditoria(
+        {
+          table: 'health_log',
+          recurso: 'health',
+          rota: req.path,
+          metodo: req.method,
+          codigo: null,
+          payload: { tipo: 'supabase' },
+          operacao: 'CONSULTAR',
+          status: 'FALHA',
+        },
+        { ignoreFailure: true },
+      );
       return res.status(503).json({
         success: false,
         status: 'unhealthy',
@@ -35,12 +67,28 @@ router.get('/health/supabase', async (req, res, next) => {
       });
     }
 
-    return res.json({
+    const response = {
       success: true,
       status: 'ok',
       sample: data[0] || null,
       timestamp: new Date().toISOString(),
-    });
+    };
+
+    await auditService.registrarAuditoria(
+      {
+        table: 'health_log',
+        recurso: 'health',
+        rota: req.path,
+        metodo: req.method,
+        codigo: null,
+        payload: { tipo: 'supabase' },
+        operacao: 'CONSULTAR',
+        status: 'SUCESSO',
+      },
+      { ignoreFailure: true },
+    );
+
+    return res.json(response);
   } catch (err) {
     next(err);
   }

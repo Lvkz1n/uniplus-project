@@ -1,34 +1,78 @@
-const supabase = require('../config/supabase');
+const auditService = require('./audit.service');
 const uniplusService = require('./uniplus.service');
 
 const AUDIT_TABLE = 'pedidos_log';
+const RESOURCE = 'pedidos';
 
-async function registrarAuditoria({ codigo, payload, operacao, status }) {
+async function registrarAuditoria({ codigo, payload, operacao, status, rota, metodo }) {
   // Saving raw JSON is useful for traceability and future reprocessing.
-  const { error } = await supabase.from(AUDIT_TABLE).insert({
+  await auditService.registrarAuditoria({
+    table: AUDIT_TABLE,
+    recurso: RESOURCE,
+    rota,
+    metodo,
     codigo,
     payload,
     operacao,
     status,
-    data_operacao: new Date().toISOString(),
   });
+}
 
-  if (error) {
-    const err = new Error('Falha ao registrar auditoria no Supabase.');
-    err.details = error.message;
-    throw err;
+async function listarPedidos(options = {}, context = {}) {
+  try {
+    const data = await uniplusService.listarPedidos(options);
+    await registrarAuditoria({
+      codigo: null,
+      payload: options?.params || options,
+      operacao: 'LISTAR',
+      status: 'SUCESSO',
+      ...context,
+    });
+    return data;
+  } catch (error) {
+    try {
+      await registrarAuditoria({
+        codigo: null,
+        payload: options?.params || options,
+        operacao: 'LISTAR',
+        status: 'FALHA',
+        ...context,
+      });
+    } catch (auditError) {
+      error.auditError = auditError.message;
+    }
+    throw error;
   }
 }
 
-async function listarPedidos(options = {}) {
-  return uniplusService.listarPedidos(options);
+async function obterPedidoPorCodigo(codigo, context = {}) {
+  try {
+    const data = await uniplusService.obterPedidoPorCodigo(codigo);
+    await registrarAuditoria({
+      codigo,
+      payload: { codigo },
+      operacao: 'CONSULTAR',
+      status: 'SUCESSO',
+      ...context,
+    });
+    return data;
+  } catch (error) {
+    try {
+      await registrarAuditoria({
+        codigo,
+        payload: { codigo },
+        operacao: 'CONSULTAR',
+        status: 'FALHA',
+        ...context,
+      });
+    } catch (auditError) {
+      error.auditError = auditError.message;
+    }
+    throw error;
+  }
 }
 
-async function obterPedidoPorCodigo(codigo) {
-  return uniplusService.obterPedidoPorCodigo(codigo);
-}
-
-async function criarPedido(dados) {
+async function criarPedido(dados, context = {}) {
   try {
     const resposta = await uniplusService.criarPedido(dados);
     const codigo = resposta?.codigo || resposta?.id || null;
@@ -38,6 +82,7 @@ async function criarPedido(dados) {
       payload: dados,
       operacao: 'CRIAR',
       status: 'SUCESSO',
+      ...context,
     });
 
     return resposta;
@@ -48,6 +93,7 @@ async function criarPedido(dados) {
         payload: dados,
         operacao: 'CRIAR',
         status: 'FALHA',
+        ...context,
       });
     } catch (auditError) {
       error.auditError = auditError.message;
@@ -56,7 +102,7 @@ async function criarPedido(dados) {
   }
 }
 
-async function atualizarPedido(dados) {
+async function atualizarPedido(dados, context = {}) {
   try {
     const resposta = await uniplusService.atualizarPedido(dados);
     const codigo = resposta?.codigo || dados?.codigo || null;
@@ -66,6 +112,7 @@ async function atualizarPedido(dados) {
       payload: dados,
       operacao: 'ATUALIZAR',
       status: 'SUCESSO',
+      ...context,
     });
 
     return resposta;
@@ -76,6 +123,7 @@ async function atualizarPedido(dados) {
         payload: dados,
         operacao: 'ATUALIZAR',
         status: 'FALHA',
+        ...context,
       });
     } catch (auditError) {
       error.auditError = auditError.message;
@@ -84,7 +132,7 @@ async function atualizarPedido(dados) {
   }
 }
 
-async function apagarPedido(codigo) {
+async function apagarPedido(codigo, context = {}) {
   try {
     const resposta = await uniplusService.apagarPedido(codigo);
 
@@ -93,6 +141,7 @@ async function apagarPedido(codigo) {
       payload: { codigo },
       operacao: 'APAGAR',
       status: 'SUCESSO',
+      ...context,
     });
 
     return resposta;
@@ -103,6 +152,7 @@ async function apagarPedido(codigo) {
         payload: { codigo },
         operacao: 'APAGAR',
         status: 'FALHA',
+        ...context,
       });
     } catch (auditError) {
       error.auditError = auditError.message;

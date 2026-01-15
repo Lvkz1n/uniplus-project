@@ -56,6 +56,7 @@ router.get('/api/produtos', async (req, res, next) => {
   try {
     const { single, ...raw } = req.query;
     const options = { params: raw };
+    const context = { rota: req.path, metodo: req.method };
 
     if (options.params.limit !== undefined) {
       options.params.limit = Number(options.params.limit);
@@ -64,7 +65,7 @@ router.get('/api/produtos', async (req, res, next) => {
       options.params.offset = Number(options.params.offset);
     }
 
-    const data = await produtosService.listarProdutos(options);
+    const data = await produtosService.listarProdutos(options, context);
 
     if (single === 'true') {
       const primeiro = Array.isArray(data) ? data[0] || null : data || null;
@@ -96,11 +97,12 @@ router.get('/api/produtos', async (req, res, next) => {
 router.get('/api/produtos/:codigo', async (req, res, next) => {
   try {
     const { codigo } = req.params;
+    const context = { rota: req.path, metodo: req.method };
     if (!codigo) {
       return res.status(400).json({ success: false, error: 'Codigo obrigatorio.' });
     }
 
-    const data = await produtosService.obterProdutoPorCodigo(codigo);
+    const data = await produtosService.obterProdutoPorCodigo(codigo, context);
     return res.json({ success: true, data });
   } catch (error) {
     next(error);
@@ -140,6 +142,7 @@ router.get('/api/produtos/:codigo', async (req, res, next) => {
 router.post('/api/produtos', async (req, res, next) => {
   try {
     const payload = req.body?.produto ? req.body.produto : req.body;
+    const context = { rota: req.path, metodo: req.method };
 
     if (!payload || typeof payload !== 'object') {
       return res.status(400).json({ success: false, error: 'Payload invalido.' });
@@ -156,7 +159,10 @@ router.post('/api/produtos', async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Campo "preco" invalido.' });
     }
 
-    const data = await produtosService.criarProduto(req.body?.produto ? req.body : { produto: payload });
+    const data = await produtosService.criarProduto(
+      req.body?.produto ? req.body : { produto: payload },
+      context,
+    );
     return res.status(201).json({ success: true, data });
   } catch (error) {
     next(error);
@@ -196,6 +202,7 @@ router.post('/api/produtos', async (req, res, next) => {
 router.put('/api/produtos', async (req, res, next) => {
   try {
     const payload = req.body?.produto ? req.body.produto : req.body;
+    const context = { rota: req.path, metodo: req.method };
 
     if (!payload || typeof payload !== 'object') {
       return res.status(400).json({ success: false, error: 'Payload invalido.' });
@@ -216,7 +223,10 @@ router.put('/api/produtos', async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Campo "preco" invalido.' });
     }
 
-    const data = await produtosService.atualizarProduto(req.body?.produto ? req.body : { produto: payload });
+    const data = await produtosService.atualizarProduto(
+      req.body?.produto ? req.body : { produto: payload },
+      context,
+    );
     return res.json({ success: true, data });
   } catch (error) {
     next(error);
@@ -248,11 +258,12 @@ router.put('/api/produtos', async (req, res, next) => {
 router.delete('/api/produtos/:codigo', async (req, res, next) => {
   try {
     const { codigo } = req.params;
+    const context = { rota: req.path, metodo: req.method };
     if (!codigo) {
       return res.status(400).json({ success: false, error: 'Codigo obrigatorio.' });
     }
 
-    const data = await produtosService.apagarProduto(codigo);
+    const data = await produtosService.apagarProduto(codigo, context);
     return res.json({ success: true, data });
   } catch (error) {
     next(error);

@@ -19,6 +19,7 @@ router.get('/api/pedidos', async (req, res, next) => {
   try {
     const { single, ...raw } = req.query;
     const options = { params: raw };
+    const context = { rota: req.path, metodo: req.method };
 
     if (options.params.limit !== undefined) {
       options.params.limit = Number(options.params.limit);
@@ -40,7 +41,7 @@ router.get('/api/pedidos', async (req, res, next) => {
       delete options.params.status;
     }
 
-    const data = await pedidosService.listarPedidos(options);
+    const data = await pedidosService.listarPedidos(options, context);
 
     if (single === 'true') {
       const primeiro = Array.isArray(data) ? data[0] || null : data || null;
@@ -97,11 +98,12 @@ router.get('/api/pedidos', async (req, res, next) => {
 router.get('/api/pedidos/:codigo', async (req, res, next) => {
   try {
     const { codigo } = req.params;
+    const context = { rota: req.path, metodo: req.method };
     if (!codigo) {
       return res.status(400).json({ success: false, error: 'Codigo obrigatorio.' });
     }
 
-    const data = await pedidosService.obterPedidoPorCodigo(codigo);
+    const data = await pedidosService.obterPedidoPorCodigo(codigo, context);
     return res.json({ success: true, data });
   } catch (error) {
     next(error);
@@ -127,6 +129,7 @@ router.get('/api/pedidos/:codigo', async (req, res, next) => {
 router.post('/api/pedidos', async (req, res, next) => {
   try {
     const payload = req.body?.dav || req.body;
+    const context = { rota: req.path, metodo: req.method };
     if (payload && !payload.data) {
       // UniPlus requires data (YYYY-MM-DD).
       payload.data = new Date().toISOString().slice(0, 10);
@@ -137,7 +140,7 @@ router.post('/api/pedidos', async (req, res, next) => {
     }
 
     const requestBody = req.body?.dav ? req.body : payload;
-    const data = await pedidosService.criarPedido(requestBody);
+    const data = await pedidosService.criarPedido(requestBody, context);
     return res.status(201).json({ success: true, data });
   } catch (error) {
     next(error);
@@ -177,6 +180,7 @@ router.post('/api/pedidos', async (req, res, next) => {
 router.put('/api/pedidos', async (req, res, next) => {
   try {
     const payload = req.body?.dav || req.body;
+    const context = { rota: req.path, metodo: req.method };
     if (payload && !payload.data) {
       payload.data = new Date().toISOString().slice(0, 10);
     }
@@ -191,7 +195,7 @@ router.put('/api/pedidos', async (req, res, next) => {
     }
 
     const requestBody = req.body?.dav ? req.body : payload;
-    const data = await pedidosService.atualizarPedido(requestBody);
+    const data = await pedidosService.atualizarPedido(requestBody, context);
     return res.json({ success: true, data });
   } catch (error) {
     next(error);
@@ -232,11 +236,12 @@ router.put('/api/pedidos', async (req, res, next) => {
 router.delete('/api/pedidos/:codigo', async (req, res, next) => {
   try {
     const { codigo } = req.params;
+    const context = { rota: req.path, metodo: req.method };
     if (!codigo) {
       return res.status(400).json({ success: false, error: 'Codigo obrigatorio.' });
     }
 
-    const data = await pedidosService.apagarPedido(codigo);
+    const data = await pedidosService.apagarPedido(codigo, context);
     return res.json({ success: true, data });
   } catch (error) {
     next(error);
