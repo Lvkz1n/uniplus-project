@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY prisma ./prisma
+
+RUN npm ci --omit=dev && npm install prisma@5.18.0 --omit=dev && npm run db:generate
+
+COPY src ./src
+COPY README.md ./
+COPY scripts/start.sh ./scripts/start.sh
+
+RUN chmod +x ./scripts/start.sh
+
+ENV NODE_ENV=production
+EXPOSE 3000
+
+CMD ["./scripts/start.sh"]
