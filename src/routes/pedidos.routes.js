@@ -27,6 +27,19 @@ router.get('/api/pedidos', async (req, res, next) => {
       options.params.offset = Number(options.params.offset);
     }
 
+    if (options.params.cliente !== undefined && options.params['cliente.eq'] === undefined) {
+      options.params['cliente.eq'] = options.params.cliente;
+      delete options.params.cliente;
+    }
+    if (options.params.codigo !== undefined && options.params['codigo.eq'] === undefined) {
+      options.params['codigo.eq'] = options.params.codigo;
+      delete options.params.codigo;
+    }
+    if (options.params.status !== undefined && options.params['status.eq'] === undefined) {
+      options.params['status.eq'] = options.params.status;
+      delete options.params.status;
+    }
+
     const data = await pedidosService.listarPedidos(options);
 
     if (single === 'true') {
