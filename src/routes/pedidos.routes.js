@@ -1,0 +1,249 @@
+const express = require('express');
+
+// HTTP routes for pedidos endpoints.
+const pedidosService = require('../services/pedidos.service');
+
+const router = express.Router();
+
+function validarPedido(payload) {
+  if (!payload || typeof payload !== 'object') return 'Payload invalido.';
+  if (!payload.cliente) return 'Campo "cliente" e obrigatorio.';
+  if (!payload.filial) return 'Campo "filial" e obrigatorio.';
+  if (!Array.isArray(payload.itens) || payload.itens.length === 0) {
+    return 'Campo "itens" deve ser um array com pelo menos 1 item.';
+  }
+  return null;
+}
+
+router.get('/api/pedidos', async (req, res, next) => {
+  try {
+    const { single, ...raw } = req.query;
+    const options = { params: raw };
+
+    if (options.params.limit !== undefined) {
+      options.params.limit = Number(options.params.limit);
+    }
+    if (options.params.offset !== undefined) {
+      options.params.offset = Number(options.params.offset);
+    }
+
+    const data = await pedidosService.listarPedidos(options);
+
+    if (single === 'true') {
+      const primeiro = Array.isArray(data) ? data[0] || null : data || null;
+      return res.json({ success: true, data: primeiro });
+    }
+
+    return res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @openapi
+ * /api/pedidos:
+ *   get:
+ *     summary: Lista pedidos (DAVs)
+ *     tags: [Pedidos]
+ *     parameters:
+ *       - in: query
+ *         name: cliente
+ *         schema:
+ *           type: string
+ *         description: Filtra por codigo do cliente
+ *       - in: query
+ *         name: codigo
+ *         schema:
+ *           type: string
+ *         description: Filtra por codigo do pedido
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Filtra por status
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Limite de registros
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *         description: Offset de pagina
+ *       - in: query
+ *         name: single
+ *         schema:
+ *           type: boolean
+ *         description: Retorna apenas um registro
+ *     responses:
+ *       200:
+ *         description: Lista de pedidos
+ */
+router.get('/api/pedidos/:codigo', async (req, res, next) => {
+  try {
+    const { codigo } = req.params;
+    if (!codigo) {
+      return res.status(400).json({ success: false, error: 'Codigo obrigatorio.' });
+    }
+
+    const data = await pedidosService.obterPedidoPorCodigo(codigo);
+    return res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @openapi
+ * /api/pedidos/{codigo}:
+ *   get:
+ *     summary: Busca um pedido por codigo
+ *     tags: [Pedidos]
+ *     parameters:
+ *       - in: path
+ *         name: codigo
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Pedido encontrado
+ */
+router.post('/api/pedidos', async (req, res, next) => {
+  try {
+    const payload = req.body?.dav || req.body;
+    if (payload && !payload.data) {
+      // UniPlus requires data (YYYY-MM-DD).
+      payload.data = new Date().toISOString().slice(0, 10);
+    }
+    const erroValidacao = validarPedido(payload);
+    if (erroValidacao) {
+      return res.status(400).json({ success: false, error: erroValidacao });
+    }
+
+    const requestBody = req.body?.dav ? req.body : payload;
+    const data = await pedidosService.criarPedido(requestBody);
+    return res.status(201).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @openapi
+ * /api/pedidos:
+ *   post:
+ *     summary: Cria um pedido (DAV)
+ *     tags: [Pedidos]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             oneOf:
+ *               - $ref: '#/components/schemas/PedidoWrapper'
+ *               - $ref: '#/components/schemas/Pedido'
+ *           examples:
+ *             wrapper:
+ *               value:
+ *                 dav:
+ *                   cliente: "251"
+ *                   filial: "1"
+ *                   tipoDocumento: 2
+ *                   condicaoPagamento: "1"
+ *                   itens:
+ *                     - produto: "15"
+ *                       quantidade: 1
+ *                       precoUnitario: 12.73
+ *     responses:
+ *       201:
+ *         description: Pedido criado
+ */
+router.put('/api/pedidos', async (req, res, next) => {
+  try {
+    const payload = req.body?.dav || req.body;
+    if (payload && !payload.data) {
+      payload.data = new Date().toISOString().slice(0, 10);
+    }
+
+    const erroValidacao = validarPedido(payload);
+    if (erroValidacao) {
+      return res.status(400).json({ success: false, error: erroValidacao });
+    }
+
+    if (!payload.codigo) {
+      return res.status(400).json({ success: false, error: 'Campo "codigo" e obrigatorio.' });
+    }
+
+    const requestBody = req.body?.dav ? req.body : payload;
+    const data = await pedidosService.atualizarPedido(requestBody);
+    return res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @openapi
+ * /api/pedidos:
+ *   put:
+ *     summary: Atualiza um pedido (DAV)
+ *     tags: [Pedidos]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             oneOf:
+ *               - $ref: '#/components/schemas/PedidoWrapper'
+ *               - $ref: '#/components/schemas/Pedido'
+ *           examples:
+ *             wrapper:
+ *               value:
+ *                 dav:
+ *                   codigo: "167"
+ *                   cliente: "251"
+ *                   filial: "1"
+ *                   tipoDocumento: 2
+ *                   condicaoPagamento: "1"
+ *                   itens:
+ *                     - produto: "15"
+ *                       quantidade: 2
+ *                       precoUnitario: 12.73
+ *     responses:
+ *       200:
+ *         description: Pedido atualizado
+ */
+router.delete('/api/pedidos/:codigo', async (req, res, next) => {
+  try {
+    const { codigo } = req.params;
+    if (!codigo) {
+      return res.status(400).json({ success: false, error: 'Codigo obrigatorio.' });
+    }
+
+    const data = await pedidosService.apagarPedido(codigo);
+    return res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @openapi
+ * /api/pedidos/{codigo}:
+ *   delete:
+ *     summary: Apaga um pedido por codigo
+ *     tags: [Pedidos]
+ *     parameters:
+ *       - in: path
+ *         name: codigo
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Pedido apagado
+ */
+module.exports = router;

@@ -1,0 +1,300 @@
+const uniplusClient = require('../config/uniplus');
+
+// Base path for UniPlus DAVs (pedidos).
+const DAVS_PATH = '/v1/davs';
+const ENTIDADES_PATH = '/v1/entidades';
+const PRODUTOS_PATH = '/v1/produtos';
+const ORDEM_SERVICO_PATH = '/v1/ordem-servico';
+
+async function listarPedidos(options = {}) {
+  try {
+    const params = options.params ? { ...options.params } : {};
+
+    if (!options.params) {
+      if (options.offset !== undefined) {
+        params.offset = options.offset;
+      }
+
+      if (options.limit !== undefined) {
+        params.limit = options.limit;
+      }
+
+      if (options.cliente) {
+        params['cliente.eq'] = options.cliente;
+      }
+
+      if (options.codigo) {
+        params['codigo.eq'] = options.codigo;
+      }
+
+      if (options.status) {
+        params['status.eq'] = options.status;
+      }
+    }
+
+    const response = await uniplusClient.get(DAVS_PATH, { params });
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao listar pedidos na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function listarEntidades(options = {}) {
+  try {
+    const params = options.params ? { ...options.params } : {};
+
+    if (!options.params) {
+      if (options.offset !== undefined) {
+        params.offset = options.offset;
+      }
+
+      if (options.limit !== undefined) {
+        params.limit = options.limit;
+      }
+
+      if (options.codigo) {
+        params['codigo.eq'] = options.codigo;
+      }
+
+      if (options.nome) {
+        params['nome.ge'] = options.nome;
+      }
+
+      if (options.cnpjCpf) {
+        params['cnpjCpf.eq'] = options.cnpjCpf;
+      }
+    }
+
+    const response = await uniplusClient.get(ENTIDADES_PATH, { params });
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao listar entidades na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function listarProdutos(options = {}) {
+  try {
+    const params = options.params ? { ...options.params } : {};
+
+    if (!options.params) {
+      if (options.offset !== undefined) {
+        params.offset = options.offset;
+      }
+
+      if (options.limit !== undefined) {
+        params.limit = options.limit;
+      }
+
+      if (options.codigo) {
+        params['codigo.eq'] = options.codigo;
+      }
+
+      if (options.nome) {
+        params['nome.ge'] = options.nome;
+      }
+    }
+
+    const response = await uniplusClient.get(PRODUTOS_PATH, { params });
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao listar produtos na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function listarOrdensServico(options = {}) {
+  try {
+    const params = options.params ? { ...options.params } : {};
+    const response = await uniplusClient.get(ORDEM_SERVICO_PATH, { params });
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao listar ordens de servico na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function obterPedidoPorCodigo(codigo) {
+  try {
+    const response = await uniplusClient.get(`${DAVS_PATH}/${codigo}`);
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao obter pedido na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function obterOrdemServicoPorCodigo(codigo) {
+  try {
+    const response = await uniplusClient.get(`${ORDEM_SERVICO_PATH}/${codigo}`);
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao obter ordem de servico na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function obterEntidadePorCodigo(codigo) {
+  try {
+    const response = await uniplusClient.get(`${ENTIDADES_PATH}/${codigo}`);
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao obter entidade na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function obterProdutoPorCodigo(codigo) {
+  try {
+    const response = await uniplusClient.get(`${PRODUTOS_PATH}/${codigo}`);
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao obter produto na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function criarProduto(dados) {
+  try {
+    const response = await uniplusClient.post(PRODUTOS_PATH, dados);
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao criar produto na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function atualizarProduto(dados) {
+  try {
+    const response = await uniplusClient.put(PRODUTOS_PATH, dados);
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao atualizar produto na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function apagarProduto(codigo) {
+  try {
+    const response = await uniplusClient.delete(`${PRODUTOS_PATH}/${codigo}`);
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao apagar produto na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function criarPedido(dados) {
+  try {
+    const response = await uniplusClient.post(DAVS_PATH, dados);
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao criar pedido na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function atualizarPedido(dados) {
+  try {
+    const response = await uniplusClient.put(DAVS_PATH, dados);
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao atualizar pedido na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function apagarPedido(codigo) {
+  try {
+    const response = await uniplusClient.delete(`${DAVS_PATH}/${codigo}`);
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao apagar pedido na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function criarEntidade(dados) {
+  try {
+    const response = await uniplusClient.post(ENTIDADES_PATH, dados);
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao criar entidade na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function atualizarEntidade(dados) {
+  try {
+    const response = await uniplusClient.put(ENTIDADES_PATH, dados);
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao atualizar entidade na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function apagarEntidade(codigo) {
+  try {
+    const response = await uniplusClient.delete(`${ENTIDADES_PATH}/${codigo}`);
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao apagar entidade na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+module.exports = {
+  listarPedidos,
+  criarPedido,
+  atualizarPedido,
+  apagarPedido,
+  obterPedidoPorCodigo,
+  listarEntidades,
+  obterEntidadePorCodigo,
+  criarEntidade,
+  atualizarEntidade,
+  apagarEntidade,
+  listarProdutos,
+  obterProdutoPorCodigo,
+  criarProduto,
+  atualizarProduto,
+  apagarProduto,
+  listarOrdensServico,
+  obterOrdemServicoPorCodigo,
+};
