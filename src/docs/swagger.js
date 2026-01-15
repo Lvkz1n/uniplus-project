@@ -1,3 +1,4 @@
+const path = require('path');
 const swaggerJSDoc = require('swagger-jsdoc');
 
 const publicBaseUrl = process.env.PUBLIC_BASE_URL || 'http://localhost:3000';
@@ -139,7 +140,7 @@ const swaggerDefinition = {
 
 const options = {
   definition: swaggerDefinition,
-  apis: ['/home/luizlvk/Documentos/GitHub/uniplus-project/src/routes/*.js'],
+  apis: [path.join(__dirname, '..', 'routes', '*.js')],
 };
 
 module.exports = swaggerJSDoc(options);
