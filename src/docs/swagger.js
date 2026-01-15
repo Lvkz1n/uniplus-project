@@ -16,6 +16,7 @@ const swaggerDefinition = {
     { name: 'Entidades', description: 'Clientes, fornecedores, transportadoras, vendedores' },
     { name: 'Produtos', description: 'Produtos e servicos' },
     { name: 'OrdensServico', description: 'Consulta de ordens de servico' },
+    { name: 'Health', description: 'Status da API e dependencias' },
   ],
   servers: [
     {

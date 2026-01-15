@@ -3,6 +3,7 @@ const pedidosRoutes = require('./routes/pedidos.routes');
 const entidadesRoutes = require('./routes/entidades.routes');
 const produtosRoutes = require('./routes/produtos.routes');
 const ordensServicoRoutes = require('./routes/ordens-servico.routes');
+const healthRoutes = require('./routes/health.routes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./docs/swagger');
 
@@ -45,6 +46,7 @@ app.use((req, res, next) => {
 });
 
 // API routes.
+app.use(healthRoutes);
 app.use(pedidosRoutes);
 app.use(entidadesRoutes);
 app.use(produtosRoutes);
