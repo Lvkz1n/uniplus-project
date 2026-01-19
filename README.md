@@ -1,4 +1,4 @@
-# uniplus-project
+# Uniplus-project-API
 
 API Node.js/Express que integra com a UniPlus (public-api) e expõe endpoints para entidades (clientes/fornecedores), produtos, pedidos e ordens de servico. Inclui auditoria via Supabase e documentacao OpenAPI.
 
