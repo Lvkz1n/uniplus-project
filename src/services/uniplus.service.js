@@ -7,6 +7,7 @@ const PRODUTOS_PATH = '/v1/produtos';
 const ORDEM_SERVICO_PATH = '/v1/ordem-servico';
 const DEFAULT_LIMIT = 25;
 const MAX_PAGES = 1000;
+const ALL_LIMIT = Number(process.env.UNIPLUS_ALL_LIMIT) || 1000;
 const LIST_KEYS = ['data', 'items', 'registros', 'records', 'content', 'conteudo'];
 
 function extrairLista(payload) {
@@ -145,17 +146,13 @@ async function listarEntidades(options = {}) {
       }
     }
 
-    if (options.all === true || (options.all === undefined && params.limit === undefined && params.offset === undefined)) {
-      return await listarTodasPaginas(ENTIDADES_PATH, params);
+    const carregarTudo =
+      options.all === true || (options.all === undefined && params.limit === undefined && params.offset === undefined);
+    if (carregarTudo && params.limit === undefined) {
+      params.limit = ALL_LIMIT;
     }
 
     const response = await uniplusClient.get(ENTIDADES_PATH, { params });
-    if (params.limit === undefined && params.offset === undefined) {
-      const { list } = extrairLista(response.data);
-      if (Array.isArray(list) && list.length === DEFAULT_LIMIT) {
-        return await listarTodasPaginas(ENTIDADES_PATH, params);
-      }
-    }
     return response.data;
   } catch (error) {
     const err = new Error('Falha ao listar entidades na UniPlus.');
@@ -194,17 +191,13 @@ async function listarProdutos(options = {}) {
       }
     }
 
-    if (options.all === true || (options.all === undefined && params.limit === undefined && params.offset === undefined)) {
-      return await listarTodasPaginas(PRODUTOS_PATH, params);
+    const carregarTudo =
+      options.all === true || (options.all === undefined && params.limit === undefined && params.offset === undefined);
+    if (carregarTudo && params.limit === undefined) {
+      params.limit = ALL_LIMIT;
     }
 
     const response = await uniplusClient.get(PRODUTOS_PATH, { params });
-    if (params.limit === undefined && params.offset === undefined) {
-      const { list } = extrairLista(response.data);
-      if (Array.isArray(list) && list.length === DEFAULT_LIMIT) {
-        return await listarTodasPaginas(PRODUTOS_PATH, params);
-      }
-    }
     return response.data;
   } catch (error) {
     const err = new Error('Falha ao listar produtos na UniPlus.');
