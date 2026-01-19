@@ -3,6 +3,7 @@ const express = require('express');
 const entidadesService = require('../services/entidades.service');
 
 const router = express.Router();
+const DEFAULT_LIMIT = 25;
 
 /**
  * @openapi
@@ -73,13 +74,18 @@ router.get('/api/entidades', async (req, res, next) => {
     if (options.params.offset !== undefined) {
       options.params.offset = Number(options.params.offset);
     }
+    const limitValue = options.params.limit;
+    const offsetValue = options.params.offset;
+
     if (all !== undefined) {
       options.all = all === 'true';
-    } else if (
-      options.params.limit === undefined
-      && options.params.offset === undefined
-      && single !== 'true'
-    ) {
+    } else if (single === 'true') {
+      options.all = false;
+    } else if (offsetValue !== undefined) {
+      options.all = false;
+    } else if (limitValue !== undefined) {
+      options.all = Number(limitValue) === DEFAULT_LIMIT;
+    } else {
       options.all = true;
     }
 
