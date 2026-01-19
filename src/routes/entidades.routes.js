@@ -41,6 +41,11 @@ const router = express.Router();
  *         schema:
  *           type: boolean
  *         description: Retorna apenas um registro
+ *       - in: query
+ *         name: all
+ *         schema:
+ *           type: boolean
+ *         description: Retorna todos os registros ignorando paginacao
  *     responses:
  *       200:
  *         description: Lista de entidades
@@ -58,7 +63,7 @@ const router = express.Router();
 
 router.get('/api/entidades', async (req, res, next) => {
   try {
-    const { single, ...raw } = req.query;
+    const { single, all, ...raw } = req.query;
     const options = { params: raw };
     const context = { rota: req.path, metodo: req.method };
 
@@ -67,6 +72,15 @@ router.get('/api/entidades', async (req, res, next) => {
     }
     if (options.params.offset !== undefined) {
       options.params.offset = Number(options.params.offset);
+    }
+    if (all !== undefined) {
+      options.all = all === 'true';
+    } else if (
+      options.params.limit === undefined
+      && options.params.offset === undefined
+      && single !== 'true'
+    ) {
+      options.all = true;
     }
 
     const data = await entidadesService.listarEntidades(options, context);

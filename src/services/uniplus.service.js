@@ -5,6 +5,43 @@ const DAVS_PATH = '/v1/davs';
 const ENTIDADES_PATH = '/v1/entidades';
 const PRODUTOS_PATH = '/v1/produtos';
 const ORDEM_SERVICO_PATH = '/v1/ordem-servico';
+const DEFAULT_LIMIT = 25;
+const MAX_PAGES = 1000;
+
+async function listarTodasPaginas(path, baseParams = {}) {
+  const params = { ...baseParams };
+  const limit = Number(params.limit) || DEFAULT_LIMIT;
+  let offset = Number(params.offset) || 0;
+  let pagina = 0;
+  let acumulado = [];
+
+  while (pagina < MAX_PAGES) {
+    const response = await uniplusClient.get(path, {
+      params: {
+        ...params,
+        limit,
+        offset,
+      },
+    });
+
+    const data = response.data;
+    if (!Array.isArray(data)) {
+      return data;
+    }
+
+    acumulado = acumulado.concat(data);
+    if (data.length < limit) {
+      return acumulado;
+    }
+
+    offset += limit;
+    pagina += 1;
+  }
+
+  const err = new Error('Limite de paginas excedido ao listar registros.');
+  err.status = 500;
+  throw err;
+}
 
 async function listarPedidos(options = {}) {
   try {
@@ -46,6 +83,13 @@ async function listarEntidades(options = {}) {
   try {
     const params = options.params ? { ...options.params } : {};
 
+    if (options.limit !== undefined && params.limit === undefined) {
+      params.limit = options.limit;
+    }
+    if (options.offset !== undefined && params.offset === undefined) {
+      params.offset = options.offset;
+    }
+
     if (!options.params) {
       if (options.offset !== undefined) {
         params.offset = options.offset;
@@ -68,6 +112,10 @@ async function listarEntidades(options = {}) {
       }
     }
 
+    if (options.all) {
+      return await listarTodasPaginas(ENTIDADES_PATH, params);
+    }
+
     const response = await uniplusClient.get(ENTIDADES_PATH, { params });
     return response.data;
   } catch (error) {
@@ -81,6 +129,13 @@ async function listarEntidades(options = {}) {
 async function listarProdutos(options = {}) {
   try {
     const params = options.params ? { ...options.params } : {};
+
+    if (options.limit !== undefined && params.limit === undefined) {
+      params.limit = options.limit;
+    }
+    if (options.offset !== undefined && params.offset === undefined) {
+      params.offset = options.offset;
+    }
 
     if (!options.params) {
       if (options.offset !== undefined) {
@@ -98,6 +153,10 @@ async function listarProdutos(options = {}) {
       if (options.nome) {
         params['nome.ge'] = options.nome;
       }
+    }
+
+    if (options.all) {
+      return await listarTodasPaginas(PRODUTOS_PATH, params);
     }
 
     const response = await uniplusClient.get(PRODUTOS_PATH, { params });
