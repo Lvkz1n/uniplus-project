@@ -6,6 +6,7 @@ const ENTIDADES_PATH = '/v1/entidades';
 const PRODUTOS_PATH = '/v1/produtos';
 const ORDEM_SERVICO_PATH = '/v1/ordem-servico';
 const DEFAULT_LIMIT = 25;
+const MAX_PAGE_SIZE = 100;
 const MAX_PAGES = 1000;
 const ALL_LIMIT = Number(process.env.UNIPLUS_ALL_LIMIT) || 1000;
 const LIST_KEYS = ['data', 'items', 'registros', 'records', 'content', 'conteudo'];
@@ -148,8 +149,13 @@ async function listarEntidades(options = {}) {
 
     const carregarTudo =
       options.all === true || (options.all === undefined && params.limit === undefined && params.offset === undefined);
-    if (carregarTudo && params.limit === undefined) {
-      params.limit = ALL_LIMIT;
+    if (carregarTudo) {
+      const pageLimit = Math.min(ALL_LIMIT, MAX_PAGE_SIZE);
+      return await listarTodasPaginas(ENTIDADES_PATH, { ...params, limit: pageLimit });
+    }
+
+    if (params.limit !== undefined) {
+      params.limit = Math.min(Number(params.limit), MAX_PAGE_SIZE);
     }
 
     const response = await uniplusClient.get(ENTIDADES_PATH, { params });
@@ -193,8 +199,13 @@ async function listarProdutos(options = {}) {
 
     const carregarTudo =
       options.all === true || (options.all === undefined && params.limit === undefined && params.offset === undefined);
-    if (carregarTudo && params.limit === undefined) {
-      params.limit = ALL_LIMIT;
+    if (carregarTudo) {
+      const pageLimit = Math.min(ALL_LIMIT, MAX_PAGE_SIZE);
+      return await listarTodasPaginas(PRODUTOS_PATH, { ...params, limit: pageLimit });
+    }
+
+    if (params.limit !== undefined) {
+      params.limit = Math.min(Number(params.limit), MAX_PAGE_SIZE);
     }
 
     const response = await uniplusClient.get(PRODUTOS_PATH, { params });
