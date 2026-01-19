@@ -7,13 +7,32 @@ const PRODUTOS_PATH = '/v1/produtos';
 const ORDEM_SERVICO_PATH = '/v1/ordem-servico';
 const DEFAULT_LIMIT = 25;
 const MAX_PAGES = 1000;
+const LIST_KEYS = ['data', 'items', 'registros', 'records', 'content', 'conteudo'];
+
+function extrairLista(payload) {
+  if (Array.isArray(payload)) {
+    return { list: payload, wrapperKey: null };
+  }
+
+  if (payload && typeof payload === 'object') {
+    for (const key of LIST_KEYS) {
+      if (Array.isArray(payload[key])) {
+        return { list: payload[key], wrapperKey: key };
+      }
+    }
+  }
+
+  return { list: null, wrapperKey: null };
+}
 
 async function listarTodasPaginas(path, baseParams = {}) {
   const params = { ...baseParams };
   const limit = Number(params.limit) || DEFAULT_LIMIT;
   let offset = Number(params.offset) || 0;
   let pagina = 0;
-  let acumulado = [];
+  let acumuladoArray = [];
+  let acumuladoWrapper = null;
+  let wrapperKey = null;
 
   while (pagina < MAX_PAGES) {
     const response = await uniplusClient.get(path, {
@@ -25,13 +44,27 @@ async function listarTodasPaginas(path, baseParams = {}) {
     });
 
     const data = response.data;
-    if (!Array.isArray(data)) {
+    const { list, wrapperKey: currentKey } = extrairLista(data);
+    if (!list) {
       return data;
     }
 
-    acumulado = acumulado.concat(data);
-    if (data.length < limit) {
-      return acumulado;
+    if (currentKey) {
+      if (!acumuladoWrapper) {
+        wrapperKey = currentKey;
+        acumuladoWrapper = { ...data, [wrapperKey]: [] };
+      }
+
+      acumuladoWrapper[wrapperKey] = acumuladoWrapper[wrapperKey].concat(list);
+
+      if (list.length < limit) {
+        return acumuladoWrapper;
+      }
+    } else {
+      acumuladoArray = acumuladoArray.concat(list);
+      if (list.length < limit) {
+        return acumuladoArray;
+      }
     }
 
     offset += limit;
