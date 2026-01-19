@@ -150,6 +150,12 @@ async function listarEntidades(options = {}) {
     }
 
     const response = await uniplusClient.get(ENTIDADES_PATH, { params });
+    if (params.limit === undefined && params.offset === undefined) {
+      const { list } = extrairLista(response.data);
+      if (Array.isArray(list) && list.length === DEFAULT_LIMIT) {
+        return await listarTodasPaginas(ENTIDADES_PATH, params);
+      }
+    }
     return response.data;
   } catch (error) {
     const err = new Error('Falha ao listar entidades na UniPlus.');
@@ -193,6 +199,12 @@ async function listarProdutos(options = {}) {
     }
 
     const response = await uniplusClient.get(PRODUTOS_PATH, { params });
+    if (params.limit === undefined && params.offset === undefined) {
+      const { list } = extrairLista(response.data);
+      if (Array.isArray(list) && list.length === DEFAULT_LIMIT) {
+        return await listarTodasPaginas(PRODUTOS_PATH, params);
+      }
+    }
     return response.data;
   } catch (error) {
     const err = new Error('Falha ao listar produtos na UniPlus.');
