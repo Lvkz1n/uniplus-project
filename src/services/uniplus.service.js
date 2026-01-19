@@ -145,7 +145,7 @@ async function listarEntidades(options = {}) {
       }
     }
 
-    if (options.all) {
+    if (options.all === true || (options.all === undefined && params.limit === undefined && params.offset === undefined)) {
       return await listarTodasPaginas(ENTIDADES_PATH, params);
     }
 
@@ -188,7 +188,7 @@ async function listarProdutos(options = {}) {
       }
     }
 
-    if (options.all) {
+    if (options.all === true || (options.all === undefined && params.limit === undefined && params.offset === undefined)) {
       return await listarTodasPaginas(PRODUTOS_PATH, params);
     }
 
