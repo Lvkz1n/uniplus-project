@@ -16,6 +16,12 @@ const swaggerDefinition = {
     { name: 'Entidades', description: 'Clientes, fornecedores, transportadoras, vendedores' },
     { name: 'Produtos', description: 'Produtos e servicos' },
     { name: 'OrdensServico', description: 'Consulta de ordens de servico' },
+    { name: 'Vendas', description: 'Consultas da API Vendas' },
+    { name: 'Estoque', description: 'Movimentacao de estoque' },
+    { name: 'ArquivosFiscais', description: 'Exportacao de XMLs fiscais' },
+    { name: 'TiposDocumentosFinanceiros', description: 'Tipos de documentos financeiros' },
+    { name: 'Gourmet', description: 'API Gourmet (mesas/comandas)' },
+    { name: 'PortalComercial', description: 'API Portal Comercial (revendas)' },
     { name: 'Health', description: 'Status da API e dependencias' },
   ],
   servers: [

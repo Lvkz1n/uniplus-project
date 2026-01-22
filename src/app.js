@@ -3,6 +3,11 @@ const pedidosRoutes = require('./routes/pedidos.routes');
 const entidadesRoutes = require('./routes/entidades.routes');
 const produtosRoutes = require('./routes/produtos.routes');
 const ordensServicoRoutes = require('./routes/ordens-servico.routes');
+const vendasRoutes = require('./routes/vendas.routes');
+const arquivosRoutes = require('./routes/arquivos.routes');
+const tipoDocumentoRoutes = require('./routes/tipo-documento-financeiro.routes');
+const gourmetRoutes = require('./routes/gourmet.routes');
+const portalRoutes = require('./routes/portal-comercial.routes');
 const healthRoutes = require('./routes/health.routes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./docs/swagger');
@@ -51,6 +56,11 @@ app.use(pedidosRoutes);
 app.use(entidadesRoutes);
 app.use(produtosRoutes);
 app.use(ordensServicoRoutes);
+app.use(vendasRoutes);
+app.use(arquivosRoutes);
+app.use(tipoDocumentoRoutes);
+app.use(gourmetRoutes);
+app.use(portalRoutes);
 
 // Swagger docs.
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

@@ -17,36 +17,49 @@ const DEFAULT_LIMIT = 25;
  *         schema:
  *           type: string
  *         description: Filtra por codigo
+ *         example: "251"
  *       - in: query
  *         name: nome
  *         schema:
  *           type: string
  *         description: Filtra por nome (prefixo)
+ *         example: "MARIA"
  *       - in: query
  *         name: cnpjCpf
  *         schema:
  *           type: string
  *         description: Filtra por CNPJ/CPF
+ *         example: "12345678901"
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
  *         description: Limite de registros
+ *         example: 100
  *       - in: query
  *         name: offset
  *         schema:
  *           type: integer
  *         description: Offset de pagina
+ *         example: 0
  *       - in: query
  *         name: single
  *         schema:
  *           type: boolean
  *         description: Retorna apenas um registro
+ *         example: false
+ *       - in: query
+ *         name: vendedores
+ *         schema:
+ *           type: boolean
+ *         description: Retorna apenas vendedores (lista unica de codigo/nome)
+ *         example: true
  *       - in: query
  *         name: all
  *         schema:
  *           type: boolean
  *         description: Retorna todos os registros ignorando paginacao
+ *         example: true
  *     responses:
  *       200:
  *         description: Lista de entidades
@@ -64,7 +77,7 @@ const DEFAULT_LIMIT = 25;
 
 router.get('/api/entidades', async (req, res, next) => {
   try {
-    const { single, all, ...raw } = req.query;
+    const { single, all, vendedores, ...raw } = req.query;
     const options = { params: raw };
     const context = { rota: req.path, metodo: req.method };
 
@@ -89,7 +102,27 @@ router.get('/api/entidades', async (req, res, next) => {
       options.all = true;
     }
 
+    if (vendedores === 'true') {
+      options.all = true;
+    }
+
     const data = await entidadesService.listarEntidades(options, context);
+
+    if (vendedores === 'true') {
+      const vendedoresMap = new Map();
+      const lista = Array.isArray(data) ? data : [];
+
+      for (const entidade of lista) {
+        if (entidade.codigoVendedor && entidade.nomeVendedor) {
+          vendedoresMap.set(entidade.codigoVendedor, {
+            codigo: entidade.codigoVendedor,
+            nome: entidade.nomeVendedor,
+          });
+        }
+      }
+
+      return res.json({ success: true, data: Array.from(vendedoresMap.values()) });
+    }
 
     if (single === 'true') {
       const primeiro = Array.isArray(data) ? data[0] || null : data || null;
@@ -114,6 +147,7 @@ router.get('/api/entidades', async (req, res, next) => {
  *         required: true
  *         schema:
  *           type: string
+ *         example: "251"
  *     responses:
  *       200:
  *         description: Entidade encontrada
@@ -325,6 +359,7 @@ router.put('/api/entidades', async (req, res, next) => {
  *         required: true
  *         schema:
  *           type: string
+ *         example: "251"
  *     responses:
  *       200:
  *         description: Entidade apagada

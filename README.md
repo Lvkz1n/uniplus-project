@@ -1,10 +1,10 @@
 # Uniplus-project-API
 
-API Node.js/Express que integra com a UniPlus (public-api) e expõe endpoints para entidades (clientes/fornecedores), produtos, pedidos e ordens de servico. Inclui auditoria via Supabase e documentacao OpenAPI.
+API Node.js/Express que integra com a UniPlus (public-api) e expõe endpoints para entidades (clientes/fornecedores), produtos, pedidos, ordens de servico, vendas, estoque, arquivos fiscais, tipos de documentos financeiros e Gourmet. Inclui auditoria via Supabase e documentacao OpenAPI.
 
 ## Principais recursos
 - Proxy seguro para a UniPlus com renovacao automatica de token.
-- Endpoints REST para entidades, produtos, pedidos e ordens de servico.
+- Endpoints REST para entidades, produtos, pedidos, ordens de servico e consultas adicionais.
 - Auditoria de operacoes em tabela (Supabase) com trilha de sucesso/falha.
 - Documentacao OpenAPI (Swagger UI).
 - Suporte a paginação e coleta completa de registros.
@@ -36,15 +36,19 @@ BASIC_AUTH_USER=usuario_api
 BASIC_AUTH_PASS=senha_api
 
 SUPABASE_URL=https://seu-projeto.supabase.co
-SUPABASE_SERVICE_ROLE=chave_service_role
+SUPABASE_SERVICE_ROLE_KEY=chave_service_role
 
 UNIPLUS_ALL_LIMIT=100
+
+PORTAL_BASE_URL=url do seu portal 
+PORTAL_API_TOKEN=token_do_portal
 ```
 
 ### Observacoes
 - `UNIPLUS_TOKEN` e opcional. Quando vazio, o token e obtido via OAuth.
 - `BASIC_AUTH_*` ativa protecao Basic Auth em todas as rotas.
 - `UNIPLUS_ALL_LIMIT` define o tamanho da pagina para buscar todos os registros. A UniPlus limita a 100 por pagina, entao use `100`.
+- `PORTAL_API_TOKEN` e obrigatorio apenas para os endpoints do Portal Comercial.
 
 ## Instalar dependencias
 ```
@@ -92,6 +96,30 @@ Todas as rotas seguem o prefixo `/api`.
 ### Ordens de servico
 - `GET /api/ordens-servico`
 - `GET /api/ordens-servico/:codigo`
+
+### Vendas e estoque (API Vendas)
+- `GET /api/vendas`
+- `GET /api/vendas/itens`
+- `GET /api/estoque/movimentacoes`
+
+### Arquivos fiscais
+- `GET /api/arquivos?tipo=DOCUMENTO_FISCAL`
+
+### Tipos de documentos financeiros
+- `GET /api/tipos-documentos-financeiros`
+- `GET /api/tipos-documentos-financeiros/:codigo`
+
+### Gourmet
+- `GET /api/gourmet/contas`
+- `POST /api/gourmet/contas`
+
+### Portal Comercial
+- `POST /api/portal/bloquear-contrato/:cpfcnpj`
+- `POST /api/portal/desbloquear-contrato/:cpfcnpj`
+- `GET /api/portal/contratos`
+- `GET /api/portal/contratos/:status`
+- `GET /api/portal/contrato/:cpfcnpj`
+- `GET /api/portal/contrato/:cpfcnpj/:status`
 
 ## Paginacao e retorno completo
 - Sem `limit/offset`, o servico tenta buscar todas as paginas usando `limit=UNIPLUS_ALL_LIMIT` (maximo 100).

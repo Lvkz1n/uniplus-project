@@ -5,6 +5,12 @@ const DAVS_PATH = '/v1/davs';
 const ENTIDADES_PATH = '/v1/entidades';
 const PRODUTOS_PATH = '/v1/produtos';
 const ORDEM_SERVICO_PATH = '/v1/ordem-servico';
+const VENDAS_PATH = '/v2/venda';
+const VENDAS_ITENS_PATH = '/v2/venda-item';
+const MOVIMENTACAO_ESTOQUE_PATH = '/v2/movimentacao-estoque';
+const ARQUIVOS_PATH = '/v1/arquivos/buscar';
+const TIPO_DOCUMENTO_FINANCEIRO_PATH = '/v1/tipo-documento-financeiro';
+const GOURMET_CONTA_PATH = '/v1/gourmet/conta';
 const DEFAULT_LIMIT = 25;
 const MAX_PAGE_SIZE = 100;
 const MAX_PAGES = 1000;
@@ -231,6 +237,108 @@ async function listarOrdensServico(options = {}) {
   }
 }
 
+async function listarVendas(options = {}) {
+  try {
+    const params = options.params ? { ...options.params } : {};
+    const response = await uniplusClient.get(VENDAS_PATH, { params });
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao listar vendas na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function listarVendasItens(options = {}) {
+  try {
+    const params = options.params ? { ...options.params } : {};
+    const response = await uniplusClient.get(VENDAS_ITENS_PATH, { params });
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao listar itens de venda na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function listarMovimentacaoEstoque(options = {}) {
+  try {
+    const params = options.params ? { ...options.params } : {};
+    const response = await uniplusClient.get(MOVIMENTACAO_ESTOQUE_PATH, { params });
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao listar movimentacao de estoque na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function listarArquivos(options = {}) {
+  try {
+    const params = options.params ? { ...options.params } : {};
+    const response = await uniplusClient.get(ARQUIVOS_PATH, { params });
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao listar arquivos na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function listarTiposDocumentoFinanceiro(options = {}) {
+  try {
+    const params = options.params ? { ...options.params } : {};
+    const response = await uniplusClient.get(TIPO_DOCUMENTO_FINANCEIRO_PATH, { params });
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao listar tipos de documentos financeiros na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function obterTipoDocumentoFinanceiroPorCodigo(codigo) {
+  try {
+    const response = await uniplusClient.get(`${TIPO_DOCUMENTO_FINANCEIRO_PATH}/${codigo}`);
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao obter tipo de documento financeiro na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function listarContasGourmet(options = {}) {
+  try {
+    const params = options.params ? { ...options.params } : {};
+    const response = await uniplusClient.get(GOURMET_CONTA_PATH, { params });
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao listar contas Gourmet na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
+async function criarContaGourmet(dados) {
+  try {
+    const response = await uniplusClient.post(GOURMET_CONTA_PATH, dados);
+    return response.data;
+  } catch (error) {
+    const err = new Error('Falha ao criar conta Gourmet na UniPlus.');
+    err.status = error.status || 500;
+    err.details = error.details || error.message;
+    throw err;
+  }
+}
+
 async function obterPedidoPorCodigo(codigo) {
   try {
     const response = await uniplusClient.get(`${DAVS_PATH}/${codigo}`);
@@ -405,4 +513,12 @@ module.exports = {
   apagarProduto,
   listarOrdensServico,
   obterOrdemServicoPorCodigo,
+  listarVendas,
+  listarVendasItens,
+  listarMovimentacaoEstoque,
+  listarArquivos,
+  listarTiposDocumentoFinanceiro,
+  obterTipoDocumentoFinanceiroPorCodigo,
+  listarContasGourmet,
+  criarContaGourmet,
 };

@@ -17,31 +17,37 @@ const DEFAULT_LIMIT = 25;
  *         schema:
  *           type: string
  *         description: Filtra por codigo
+ *         example: "15"
  *       - in: query
  *         name: nome
  *         schema:
  *           type: string
  *         description: Filtra por nome (prefixo)
+ *         example: "AGUA"
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
  *         description: Limite de registros
+ *         example: 100
  *       - in: query
  *         name: offset
  *         schema:
  *           type: integer
  *         description: Offset de pagina
+ *         example: 0
  *       - in: query
  *         name: single
  *         schema:
  *           type: boolean
  *         description: Retorna apenas um registro
+ *         example: false
  *       - in: query
  *         name: all
  *         schema:
  *           type: boolean
  *         description: Retorna todos os registros ignorando paginacao
+ *         example: true
  *     responses:
  *       200:
  *         description: Lista de produtos
@@ -110,6 +116,7 @@ router.get('/api/produtos', async (req, res, next) => {
  *         required: true
  *         schema:
  *           type: string
+ *         example: "15"
  *     responses:
  *       200:
  *         description: Produto encontrado
@@ -265,6 +272,7 @@ router.put('/api/produtos', async (req, res, next) => {
  *         required: true
  *         schema:
  *           type: string
+ *         example: "15"
  *     responses:
  *       200:
  *         description: Produto apagado

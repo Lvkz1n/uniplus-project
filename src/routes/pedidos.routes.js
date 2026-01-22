@@ -66,31 +66,37 @@ router.get('/api/pedidos', async (req, res, next) => {
  *         schema:
  *           type: string
  *         description: Filtra por codigo do cliente
+ *         example: "251"
  *       - in: query
  *         name: codigo
  *         schema:
  *           type: string
  *         description: Filtra por codigo do pedido
+ *         example: "167"
  *       - in: query
  *         name: status
  *         schema:
  *           type: string
  *         description: Filtra por status
+ *         example: "8"
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
  *         description: Limite de registros
+ *         example: 100
  *       - in: query
  *         name: offset
  *         schema:
  *           type: integer
  *         description: Offset de pagina
+ *         example: 0
  *       - in: query
  *         name: single
  *         schema:
  *           type: boolean
  *         description: Retorna apenas um registro
+ *         example: false
  *     responses:
  *       200:
  *         description: Lista de pedidos
@@ -122,6 +128,7 @@ router.get('/api/pedidos/:codigo', async (req, res, next) => {
  *         required: true
  *         schema:
  *           type: string
+ *         example: "167"
  *     responses:
  *       200:
  *         description: Pedido encontrado
@@ -260,6 +267,7 @@ router.delete('/api/pedidos/:codigo', async (req, res, next) => {
  *         required: true
  *         schema:
  *           type: string
+ *         example: "167"
  *     responses:
  *       200:
  *         description: Pedido apagado

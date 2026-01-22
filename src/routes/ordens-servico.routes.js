@@ -16,16 +16,19 @@ const router = express.Router();
  *         schema:
  *           type: integer
  *         description: Limite de registros
+ *         example: 100
  *       - in: query
  *         name: offset
  *         schema:
  *           type: integer
  *         description: Offset de pagina
+ *         example: 0
  *       - in: query
  *         name: single
  *         schema:
  *           type: boolean
  *         description: Retorna apenas um registro
+ *         example: false
  *     responses:
  *       200:
  *         description: Lista de ordens de servico
@@ -68,6 +71,7 @@ router.get('/api/ordens-servico', async (req, res, next) => {
  *         required: true
  *         schema:
  *           type: string
+ *         example: "10"
  *     responses:
  *       200:
  *         description: Ordem de servico encontrada
