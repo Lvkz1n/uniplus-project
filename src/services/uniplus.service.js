@@ -1,28 +1,30 @@
-const uniplusClient = require('../config/uniplus');
+const uniplusClient = require("../config/uniplus");
+const {
+  DEFAULT_LIMIT,
+  MAX_PAGE_SIZE,
+  MAX_PAGES,
+  ALL_LIMIT,
+  LIST_KEYS,
+} = require("../config/constants");
 
 // Base path for UniPlus DAVs (pedidos).
-const DAVS_PATH = '/v1/davs';
-const ENTIDADES_PATH = '/v1/entidades';
-const PRODUTOS_PATH = '/v1/produtos';
-const ORDEM_SERVICO_PATH = '/v1/ordem-servico';
-const VENDAS_PATH = '/v2/venda';
-const VENDAS_ITENS_PATH = '/v2/venda-item';
-const MOVIMENTACAO_ESTOQUE_PATH = '/v2/movimentacao-estoque';
-const ARQUIVOS_PATH = '/v1/arquivos/buscar';
-const TIPO_DOCUMENTO_FINANCEIRO_PATH = '/v1/tipo-documento-financeiro';
-const GOURMET_CONTA_PATH = '/v1/gourmet/conta';
-const DEFAULT_LIMIT = 25;
-const MAX_PAGE_SIZE = 100;
-const MAX_PAGES = 1000;
-const ALL_LIMIT = Number(process.env.UNIPLUS_ALL_LIMIT) || 1000;
-const LIST_KEYS = ['data', 'items', 'registros', 'records', 'content', 'conteudo'];
+const DAVS_PATH = "/v1/davs";
+const ENTIDADES_PATH = "/v1/entidades";
+const PRODUTOS_PATH = "/v1/produtos";
+const ORDEM_SERVICO_PATH = "/v1/ordem-servico";
+const VENDAS_PATH = "/v2/venda";
+const VENDAS_ITENS_PATH = "/v2/venda-item";
+const MOVIMENTACAO_ESTOQUE_PATH = "/v2/movimentacao-estoque";
+const ARQUIVOS_PATH = "/v1/arquivos/buscar";
+const TIPO_DOCUMENTO_FINANCEIRO_PATH = "/v1/tipo-documento-financeiro";
+const GOURMET_CONTA_PATH = "/v1/gourmet/conta";
 
 function extrairLista(payload) {
   if (Array.isArray(payload)) {
     return { list: payload, wrapperKey: null };
   }
 
-  if (payload && typeof payload === 'object') {
+  if (payload && typeof payload === "object") {
     for (const key of LIST_KEYS) {
       if (Array.isArray(payload[key])) {
         return { list: payload[key], wrapperKey: key };
@@ -79,7 +81,7 @@ async function listarTodasPaginas(path, baseParams = {}) {
     pagina += 1;
   }
 
-  const err = new Error('Limite de paginas excedido ao listar registros.');
+  const err = new Error("Limite de paginas excedido ao listar registros.");
   err.status = 500;
   throw err;
 }
@@ -98,22 +100,22 @@ async function listarPedidos(options = {}) {
       }
 
       if (options.cliente) {
-        params['cliente.eq'] = options.cliente;
+        params["cliente.eq"] = options.cliente;
       }
 
       if (options.codigo) {
-        params['codigo.eq'] = options.codigo;
+        params["codigo.eq"] = options.codigo;
       }
 
       if (options.status) {
-        params['status.eq'] = options.status;
+        params["status.eq"] = options.status;
       }
     }
 
     const response = await uniplusClient.get(DAVS_PATH, { params });
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao listar pedidos na UniPlus.');
+    const err = new Error("Falha ao listar pedidos na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -141,23 +143,29 @@ async function listarEntidades(options = {}) {
       }
 
       if (options.codigo) {
-        params['codigo.eq'] = options.codigo;
+        params["codigo.eq"] = options.codigo;
       }
 
       if (options.nome) {
-        params['nome.ge'] = options.nome;
+        params["nome.ge"] = options.nome;
       }
 
       if (options.cnpjCpf) {
-        params['cnpjCpf.eq'] = options.cnpjCpf;
+        params["cnpjCpf.eq"] = options.cnpjCpf;
       }
     }
 
     const carregarTudo =
-      options.all === true || (options.all === undefined && params.limit === undefined && params.offset === undefined);
+      options.all === true ||
+      (options.all === undefined &&
+        params.limit === undefined &&
+        params.offset === undefined);
     if (carregarTudo) {
       const pageLimit = Math.min(ALL_LIMIT, MAX_PAGE_SIZE);
-      return await listarTodasPaginas(ENTIDADES_PATH, { ...params, limit: pageLimit });
+      return await listarTodasPaginas(ENTIDADES_PATH, {
+        ...params,
+        limit: pageLimit,
+      });
     }
 
     if (params.limit !== undefined) {
@@ -167,7 +175,7 @@ async function listarEntidades(options = {}) {
     const response = await uniplusClient.get(ENTIDADES_PATH, { params });
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao listar entidades na UniPlus.');
+    const err = new Error("Falha ao listar entidades na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -195,19 +203,25 @@ async function listarProdutos(options = {}) {
       }
 
       if (options.codigo) {
-        params['codigo.eq'] = options.codigo;
+        params["codigo.eq"] = options.codigo;
       }
 
       if (options.nome) {
-        params['nome.ge'] = options.nome;
+        params["nome.ge"] = options.nome;
       }
     }
 
     const carregarTudo =
-      options.all === true || (options.all === undefined && params.limit === undefined && params.offset === undefined);
+      options.all === true ||
+      (options.all === undefined &&
+        params.limit === undefined &&
+        params.offset === undefined);
     if (carregarTudo) {
       const pageLimit = Math.min(ALL_LIMIT, MAX_PAGE_SIZE);
-      return await listarTodasPaginas(PRODUTOS_PATH, { ...params, limit: pageLimit });
+      return await listarTodasPaginas(PRODUTOS_PATH, {
+        ...params,
+        limit: pageLimit,
+      });
     }
 
     if (params.limit !== undefined) {
@@ -217,7 +231,7 @@ async function listarProdutos(options = {}) {
     const response = await uniplusClient.get(PRODUTOS_PATH, { params });
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao listar produtos na UniPlus.');
+    const err = new Error("Falha ao listar produtos na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -230,7 +244,7 @@ async function listarOrdensServico(options = {}) {
     const response = await uniplusClient.get(ORDEM_SERVICO_PATH, { params });
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao listar ordens de servico na UniPlus.');
+    const err = new Error("Falha ao listar ordens de servico na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -243,7 +257,7 @@ async function listarVendas(options = {}) {
     const response = await uniplusClient.get(VENDAS_PATH, { params });
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao listar vendas na UniPlus.');
+    const err = new Error("Falha ao listar vendas na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -256,7 +270,7 @@ async function listarVendasItens(options = {}) {
     const response = await uniplusClient.get(VENDAS_ITENS_PATH, { params });
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao listar itens de venda na UniPlus.');
+    const err = new Error("Falha ao listar itens de venda na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -266,10 +280,14 @@ async function listarVendasItens(options = {}) {
 async function listarMovimentacaoEstoque(options = {}) {
   try {
     const params = options.params ? { ...options.params } : {};
-    const response = await uniplusClient.get(MOVIMENTACAO_ESTOQUE_PATH, { params });
+    const response = await uniplusClient.get(MOVIMENTACAO_ESTOQUE_PATH, {
+      params,
+    });
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao listar movimentacao de estoque na UniPlus.');
+    const err = new Error(
+      "Falha ao listar movimentacao de estoque na UniPlus.",
+    );
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -282,7 +300,7 @@ async function listarArquivos(options = {}) {
     const response = await uniplusClient.get(ARQUIVOS_PATH, { params });
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao listar arquivos na UniPlus.');
+    const err = new Error("Falha ao listar arquivos na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -292,10 +310,14 @@ async function listarArquivos(options = {}) {
 async function listarTiposDocumentoFinanceiro(options = {}) {
   try {
     const params = options.params ? { ...options.params } : {};
-    const response = await uniplusClient.get(TIPO_DOCUMENTO_FINANCEIRO_PATH, { params });
+    const response = await uniplusClient.get(TIPO_DOCUMENTO_FINANCEIRO_PATH, {
+      params,
+    });
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao listar tipos de documentos financeiros na UniPlus.');
+    const err = new Error(
+      "Falha ao listar tipos de documentos financeiros na UniPlus.",
+    );
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -304,10 +326,14 @@ async function listarTiposDocumentoFinanceiro(options = {}) {
 
 async function obterTipoDocumentoFinanceiroPorCodigo(codigo) {
   try {
-    const response = await uniplusClient.get(`${TIPO_DOCUMENTO_FINANCEIRO_PATH}/${codigo}`);
+    const response = await uniplusClient.get(
+      `${TIPO_DOCUMENTO_FINANCEIRO_PATH}/${codigo}`,
+    );
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao obter tipo de documento financeiro na UniPlus.');
+    const err = new Error(
+      "Falha ao obter tipo de documento financeiro na UniPlus.",
+    );
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -320,7 +346,7 @@ async function listarContasGourmet(options = {}) {
     const response = await uniplusClient.get(GOURMET_CONTA_PATH, { params });
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao listar contas Gourmet na UniPlus.');
+    const err = new Error("Falha ao listar contas Gourmet na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -332,7 +358,7 @@ async function criarContaGourmet(dados) {
     const response = await uniplusClient.post(GOURMET_CONTA_PATH, dados);
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao criar conta Gourmet na UniPlus.');
+    const err = new Error("Falha ao criar conta Gourmet na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -344,7 +370,7 @@ async function obterPedidoPorCodigo(codigo) {
     const response = await uniplusClient.get(`${DAVS_PATH}/${codigo}`);
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao obter pedido na UniPlus.');
+    const err = new Error("Falha ao obter pedido na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -356,7 +382,7 @@ async function obterOrdemServicoPorCodigo(codigo) {
     const response = await uniplusClient.get(`${ORDEM_SERVICO_PATH}/${codigo}`);
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao obter ordem de servico na UniPlus.');
+    const err = new Error("Falha ao obter ordem de servico na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -368,7 +394,7 @@ async function obterEntidadePorCodigo(codigo) {
     const response = await uniplusClient.get(`${ENTIDADES_PATH}/${codigo}`);
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao obter entidade na UniPlus.');
+    const err = new Error("Falha ao obter entidade na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -380,7 +406,7 @@ async function obterProdutoPorCodigo(codigo) {
     const response = await uniplusClient.get(`${PRODUTOS_PATH}/${codigo}`);
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao obter produto na UniPlus.');
+    const err = new Error("Falha ao obter produto na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -392,7 +418,7 @@ async function criarProduto(dados) {
     const response = await uniplusClient.post(PRODUTOS_PATH, dados);
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao criar produto na UniPlus.');
+    const err = new Error("Falha ao criar produto na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -404,7 +430,7 @@ async function atualizarProduto(dados) {
     const response = await uniplusClient.put(PRODUTOS_PATH, dados);
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao atualizar produto na UniPlus.');
+    const err = new Error("Falha ao atualizar produto na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -416,7 +442,7 @@ async function apagarProduto(codigo) {
     const response = await uniplusClient.delete(`${PRODUTOS_PATH}/${codigo}`);
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao apagar produto na UniPlus.');
+    const err = new Error("Falha ao apagar produto na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -428,7 +454,7 @@ async function criarPedido(dados) {
     const response = await uniplusClient.post(DAVS_PATH, dados);
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao criar pedido na UniPlus.');
+    const err = new Error("Falha ao criar pedido na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -440,7 +466,7 @@ async function atualizarPedido(dados) {
     const response = await uniplusClient.put(DAVS_PATH, dados);
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao atualizar pedido na UniPlus.');
+    const err = new Error("Falha ao atualizar pedido na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -452,7 +478,7 @@ async function apagarPedido(codigo) {
     const response = await uniplusClient.delete(`${DAVS_PATH}/${codigo}`);
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao apagar pedido na UniPlus.');
+    const err = new Error("Falha ao apagar pedido na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -464,7 +490,7 @@ async function criarEntidade(dados) {
     const response = await uniplusClient.post(ENTIDADES_PATH, dados);
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao criar entidade na UniPlus.');
+    const err = new Error("Falha ao criar entidade na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -476,7 +502,7 @@ async function atualizarEntidade(dados) {
     const response = await uniplusClient.put(ENTIDADES_PATH, dados);
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao atualizar entidade na UniPlus.');
+    const err = new Error("Falha ao atualizar entidade na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;
@@ -488,7 +514,7 @@ async function apagarEntidade(codigo) {
     const response = await uniplusClient.delete(`${ENTIDADES_PATH}/${codigo}`);
     return response.data;
   } catch (error) {
-    const err = new Error('Falha ao apagar entidade na UniPlus.');
+    const err = new Error("Falha ao apagar entidade na UniPlus.");
     err.status = error.status || 500;
     err.details = error.details || error.message;
     throw err;

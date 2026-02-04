@@ -62,17 +62,6 @@ model HealthLog {
   @@map("health_log")
 }
 
-model EmpresaLog {
-  id           String   @id @default(uuid()) @db.Uuid
-  codigo       String?  @db.Text
-  payload      Json
-  operacao     String   @db.Text
-  status       String   @db.Text
-  dataOperacao DateTime @map("data_operacao") @db.Timestamptz(6)
-
-  @@map("empresas_log")
-}
-
 model ApiLog {
   id           String   @id @default(uuid()) @db.Uuid
   recurso      String   @db.Text

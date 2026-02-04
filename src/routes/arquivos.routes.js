@@ -15,7 +15,7 @@ const router = express.Router();
  *         name: tipo
  *         schema:
  *           type: string
- *         description: Tipo do arquivo (ex: DOCUMENTO_FISCAL)
+ *         description: "Tipo do arquivo (ex: DOCUMENTO_FISCAL)"
  *         example: "DOCUMENTO_FISCAL"
  *     responses:
  *       200:
