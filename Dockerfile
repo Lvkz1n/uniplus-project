@@ -7,8 +7,7 @@ COPY prisma ./prisma
 
 RUN apk add --no-cache curl \
   && npm ci --omit=dev \
-  && npm install prisma@5.18.0 --omit=dev \
-  && npm run db:generate
+  && npm install prisma@5.18.0
 
 COPY src ./src
 COPY README.md ./

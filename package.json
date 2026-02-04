@@ -7,10 +7,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "prisma db seed",
-    "db:setup": "npm run db:generate && npm run db:migrate && npm run db:seed"
+    "db:setup": "npm run db:migrate && npm run db:seed"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
