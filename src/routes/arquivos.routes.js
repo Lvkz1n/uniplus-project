@@ -1,6 +1,6 @@
-const express = require('express');
+const express = require("express");
 
-const arquivosService = require('../services/arquivos.service');
+const arquivosService = require("../services/arquivos.service");
 
 const router = express.Router();
 
@@ -21,13 +21,13 @@ const router = express.Router();
  *       200:
  *         description: Lista de arquivos disponiveis
  */
-router.get('/api/arquivos', async (req, res, next) => {
+router.get("/api/arquivos", async (req, res, next) => {
   try {
     const { tipo } = req.query;
     if (!tipo) {
       return res.status(400).json({
         success: false,
-        error: 'Parametro tipo e obrigatorio (ex: DOCUMENTO_FISCAL).',
+        error: "Parametro tipo e obrigatorio (ex: DOCUMENTO_FISCAL).",
       });
     }
 
